@@ -17,8 +17,6 @@ CORS(app)
 # creating an API object
 api = Api(app)
 
-parks = dict()
-
 # ==================================================================
 # making a class for a particular resource 
 # the get, post methods correspond to get and post requests 
@@ -50,6 +48,7 @@ api.add_resource(ParkingStatus, '/parkingStatus')
 # ==================================================================
 # driver function
 if __name__ == '__main__':
+    global parks = dict()
     app.run(
             debug=True,
             host=app.config.get("HOST", "0.0.0.0"),
