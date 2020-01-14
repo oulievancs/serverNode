@@ -17,6 +17,9 @@ CORS(app)
 # creating an API object
 api = Api(app)
 
+# Initialize a direcory
+parks = dict()
+
 # ==================================================================
 # making a class for a particular resource 
 # the get, post methods correspond to get and post requests 
@@ -24,6 +27,7 @@ api = Api(app)
 # other methods include put, delete, etc.
 class Parking(Resource):
     def get(self):
+        global parks
         return parks, 200
 
 class ParkingStatus(Resource):
@@ -33,6 +37,7 @@ class ParkingStatus(Resource):
             <body><h1>Not get at '/parkingStatus'.</h1></body>
             </html>"""
     def post(self):
+        global parks
         print (request)
         data = json.loads(request.data)
         print (data)
@@ -48,7 +53,6 @@ api.add_resource(ParkingStatus, '/parkingStatus')
 # ==================================================================
 # driver function
 if __name__ == '__main__':
-    global parks = dict()
     app.run(
             debug=True,
             host=app.config.get("HOST", "0.0.0.0"),
