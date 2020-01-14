@@ -43,7 +43,7 @@ class Parking(Resource):
         myRes = myCursor.fetchall()
         
         for res in myRes:
-            parks[res.PARKING_CODE] = res.PARKING_STATUS
+            parks[res[0]] = res[1]
         return parks, 200
 
 class ParkingStatus(Resource):
@@ -64,8 +64,8 @@ class ParkingStatus(Resource):
         
         thereIs = False
         for res in myRes:
-            parks[res.PARKING_CODE] = res.PARKING_STATUS
-            if res.PARKING_CODE == data['no']:
+            parks[res[0]] = res[1]
+            if res[0] == data['no']:
                 thereIs = True
         if not thereIs:
             myCursor.execute("INSERT INTO PARKING (PARKING_CODE, PARKING_STATUS) VALUES (%s, %s)", (int (data['no']), int(data['status'])))
