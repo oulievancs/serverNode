@@ -29,6 +29,18 @@ mydb = mysql.connector.connect(
 myCursor = mydb.cursor()
 
 # ==================================
+# Define our functions.
+# Define a function that gets the parking status
+#   for all parking codes.
+def getParkings():
+    parks = dict()
+    
+    myCursor.execute("SELECT * FROM PARKING")
+    myRes = myCursor.fetchall()
+    
+    for res in myRes:
+        parks[res[0]] = res[1]
+    return parks
 
 # ==================================================================
 # making a class for a particular resource 
@@ -37,13 +49,7 @@ myCursor = mydb.cursor()
 # other methods include put, delete, etc.
 class Parking(Resource):
     def get(self):
-        parks = dict()
-        
-        myCursor.execute("SELECT * FROM PARKING")
-        myRes = myCursor.fetchall()
-        
-        for res in myRes:
-            parks[res[0]] = res[1]
+        parks = getParkings()
         return parks, 200
 
 class ParkingStatus(Resource):
@@ -53,29 +59,41 @@ class ParkingStatus(Resource):
             <body><h1>Not get at '/parkingStatus'.</h1></body>
             </html>"""
     def post(self):
-        print (request)
+        # Gets the data into a JSON Object.
         data = json.loads(request.data)
-        print (data)
         
-        parks = dict()
-        
-        myCursor.execute("SELECT * FROM PARKING")
-        myRes = myCursor.fetchall()
+        # SQL get all Parking places status.
+        parks = getParkings()
         
         thereIs = False
-        for res in myRes:
-            parks[res[0]] = res[1]
-            if res[0] == data['no']:
-                thereIs = True
-        if not thereIs:
-            myCursor.execute("INSERT INTO PARKING (PARKING_CODE, PARKING_STATUS) VALUES (%s, %s)", (int (data['no']), int(data['status'])))
+        toUpdate = False
+        try:
+            if parks[int(data['no'])] != int(data['status']):
+                toUpdate = True
+            thereIs = True
+        except IndexError:
+            # handle Index Error
+            thereIs = False
+        except KeyError:
+            # handle the KeyError
+            thereIs = False
         
-        parks[data['no']] = data['status']
+        if not thereIs:
+            # Make a new insert entry for a new Parking Code.
+            values = (int(data['no']), int(data['status']))
+            myCursor.execute("INSERT INTO PARKING (PARKING_CODE, PARKING_STATUS) VALUES (%s, %s)", values)
+            mydb.commit()
+        elif toUpdate:
+            # Make an Update status for Parking Code that availability changed.
+            values = (int(data['status']), int(data['no']))
+            myCursor.execute("UPDATE PARKING SET PARKING_STATUS=%s WHERE PARKING_CODE=%s", values)
+            mydb.commit()
+        
         return parks[data['no']], 201
 
 
 # ==================================================================
-# adding the defined resources along with their corresponding urls 
+# adding the defined resources along with their corresponding urls to REST APIs 
 api.add_resource(Parking, '/')
 api.add_resource(ParkingStatus, '/parkingStatus')
 
