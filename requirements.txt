@@ -2,4 +2,4 @@ flask
 flask_restful
 flask_cors
 gunicorn==19.9.0
-mysql
+mysql-connector
