@@ -6,6 +6,7 @@ from flask_restful import Resource, Api
 from json import dumps
 import json
 from flask_cors import CORS
+import mysql.connector
 
 # ==================================================================
 # ==================================================================
@@ -17,8 +18,17 @@ CORS(app)
 # creating an API object
 api = Api(app)
 
-# Initialize a direcory
-parks = dict()
+# Initialize the database Connection
+mydb = mysql.connector.connect(
+    host = "q2gen47hi68k1yrb.chr7pe7iynqr.eu-west-1.rds.amazonaws.com",
+    user = "zsgmj50h7zgz9ioq",
+    password = "omk5l1hrwsgvlcez",
+    database = "g0s9cnmdkziq6fsp"
+)
+
+myCursor = mydb.cursor()
+
+# ==================================
 
 # ==================================================================
 # making a class for a particular resource 
@@ -27,7 +37,13 @@ parks = dict()
 # other methods include put, delete, etc.
 class Parking(Resource):
     def get(self):
-        global parks
+        parks = dict()
+        
+        myCursor.execute("SELECT * FROM PARKING")
+        myRes = myCursor.fetchall()
+        
+        for res in myRes:
+            parks[res.PARKING_CODE] = res.PARKING_STATUS
         return parks, 200
 
 class ParkingStatus(Resource):
@@ -37,10 +53,23 @@ class ParkingStatus(Resource):
             <body><h1>Not get at '/parkingStatus'.</h1></body>
             </html>"""
     def post(self):
-        global parks
         print (request)
         data = json.loads(request.data)
         print (data)
+        
+        parks = dict()
+        
+        myCursor.execute("SELECT * FROM PARKING")
+        myRes = myCursor.fetchall()
+        
+        thereIs = False
+        for res in myRes:
+            parks[res.PARKING_CODE] = res.PARKING_STATUS
+            if res.PARKING_CODE == data['no']:
+                thereIs = True
+        if not thereIs:
+            myCursor.execute("INSERT INTO PARKING (PARKING_CODE, PARKING_STATUS) VALUES (%s, %s)", (int (data['no']), int(data['status'])))
+        
         parks[data['no']] = data['status']
         return parks[data['no']], 201
 
