@@ -83,11 +83,13 @@ class ParkingStatus(Resource):
             values = (int(data['no']), int(data['status']))
             myCursor.execute("INSERT INTO PARKING (PARKING_CODE, PARKING_STATUS) VALUES (%s, %s)", values)
             mydb.commit()
+            parks = getParkings()
         elif toUpdate:
             # Make an Update status for Parking Code that availability changed.
             values = (int(data['status']), int(data['no']))
             myCursor.execute("UPDATE PARKING SET PARKING_STATUS=%s WHERE PARKING_CODE=%s", values)
             mydb.commit()
+            parks = getParkings()
         
         return parks[data['no']], 201
 
