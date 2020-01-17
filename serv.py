@@ -40,9 +40,9 @@ def getParkings():
     
     for res in myRes:
         if res[1] == 1:
-            parks.append = ({"no": res[0], "status": True})
+            parks.append({"no": res[0], "status": True})
         else:
-            parks.append = ({"no": res[0], "status": False})
+            parks.append({"no": res[0], "status": False})
     return parks
 
 # ==================================================================
