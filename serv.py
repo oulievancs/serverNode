@@ -33,13 +33,16 @@ myCursor = mydb.cursor()
 # Define a function that gets the parking status
 #   for all parking codes.
 def getParkings():
-    parks = dict()
+    parks = []
     
     myCursor.execute("SELECT * FROM PARKING")
     myRes = myCursor.fetchall()
     
     for res in myRes:
-        parks[res[0]] = res[1]
+        if res[1] == 1:
+            parks.append = {"no": res[0], "status": True}
+        else:
+            parks.append = {"no": res[0], "status": False}
     return parks
 
 # ==================================================================
@@ -65,18 +68,26 @@ class ParkingStatus(Resource):
         # SQL get all Parking places status.
         parks = getParkings()
         
+        currentParking = {}
+        for park in parks:
+            if park['no'] == data['no']:
+                currentParking = park
+                break;
+        
         thereIs = False
         toUpdate = False
         try:
-            if parks[int(data['no'])] != int(data['status']):
+            if currentParking['status'] != data['status']:
                 toUpdate = True
             thereIs = True
         except IndexError:
             # handle Index Error
             thereIs = False
+            toUpdate = False
         except KeyError:
             # handle the KeyError
             thereIs = False
+            toUpdate = False
         
         if not thereIs:
             # Make a new insert entry for a new Parking Code.
@@ -91,7 +102,7 @@ class ParkingStatus(Resource):
             mydb.commit()
             parks = getParkings()
         
-        return parks[data['no']], 201
+        return currentParking, 201
 
 
 # ==================================================================
