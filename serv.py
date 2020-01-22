@@ -24,10 +24,10 @@ api = Api(app)
 
 # Initialize the database Connection
 mydb = mysql.connector.connect(
-    host = "127.0.0.1",#"q2gen47hi68k1yrb.chr7pe7iynqr.eu-west-1.rds.amazonaws.com",
-    user = "root",#"zsgmj50h7zgz9ioq",
-    password = "rootP",#"omk5l1hrwsgvlcez",
-    database = "PARKING"#"g0s9cnmdkziq6fsp"
+    host = "q2gen47hi68k1yrb.chr7pe7iynqr.eu-west-1.rds.amazonaws.com",
+    user = "zsgmj50h7zgz9ioq",
+    password = "omk5l1hrwsgvlcez",
+    database = "g0s9cnmdkziq6fsp"
 )
 
 myCursor = mydb.cursor()
