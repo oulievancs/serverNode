@@ -138,7 +138,7 @@ class ParkingStatus(Resource):
 					myCursor.execute("UPDATE PARKING SET PARKING_STATUS=%s WHERE PARKING_CODE=%s", values)
 					mydb.commit()
 					parks = getParkings()
-			except mysql.connector.errors.DatabaseError, mysql.connector.errors.InterfaceError as e:
+			except (mysql.connector.errors.DatabaseError, mysql.connector.errors.InterfaceError) as e:
 				mydb.reconnect(attempts=1, delay=0)
 			
 			return currentParking, 201
@@ -160,7 +160,7 @@ class Authenticate(Resource):
 					return "Not Authenticatiove device", 403
 			else:
 				return "Error authentication", 403
-		except mysql.connector.errors.DatabaseError, mysql.connector.errors.InterfaceError as e:
+		except (mysql.connector.errors.DatabaseError, mysql.connector.errors.InterfaceError) as e:
 				mydb.reconnect(attempts=1, delay=0)
 
 # ==================================================================
