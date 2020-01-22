@@ -1,13 +1,14 @@
 #Authors:   Oulis Evangelos, Oulis Nikolaos, Drosos Katsibras
 #===================================================================
 # using flask restful
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify
 from flask_restful import Resource, Api
 from json import dumps
 import json
 from flask_cors import CORS
 import mysql.connector
-import os
+from base64 import b64encode
+from os import urandom
 
 # ==================================================================
 # ==================================================================
@@ -16,8 +17,8 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-# create the secret key for session
-app.secret_key = os.urandom(24)
+# Session list
+sessions = []
 
 # creating an API object
 api = Api(app)
@@ -65,10 +66,13 @@ def isMember(username, password):
 
 # Function that return if the requested user is authenticated
 # 	or not (True / False).
-def isAuthenticated():
-	if 'device_id' in session:
-		return True
-	else:
+def isAuthenticated(data):
+	try:
+		if data['cookie'] in sessions:
+			return True
+		else:
+			return False
+	except KeyError as e:
 		return False
 
 
@@ -94,10 +98,9 @@ class ParkingStatus(Resource):
 			<body><h1>Not get at '/parkingStatus'.</h1></body>
 			</html>"""
 	def post(self):
-		if isAuthenticated():
-			# Gets the data into as a JSON Object from HTTP request.
-			data = json.loads(request.data)
-			
+		# Gets the data into as a JSON Object from HTTP request.
+		data = json.loads(request.data)
+		if isAuthenticated(data):
 			try:
 				# SQL get all Parking places status.
 				parks = getParkings()
@@ -155,7 +158,11 @@ class Authenticate(Resource):
 				isValid = isMember(data['username'], data['password'])
 				
 				if isValid:
-					session['device_id'] = data['device']
+					session_key = str(b64encode(urandom(32)).decode('utf-8'))
+					
+					session = {"cookie": session_key}
+					sessions.append(session_key)
+					return session, 200
 				else:
 					return "Not Authenticatiove device", 403
 			else:
